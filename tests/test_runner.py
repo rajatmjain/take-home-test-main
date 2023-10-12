@@ -127,6 +127,7 @@ import sqlite3
 conn = sqlite3.connect("my-database.db")
 results = conn.execute("SELECT * FROM numbers")
 print(results)
+conn.close()
 ```
 
 
