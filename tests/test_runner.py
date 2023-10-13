@@ -107,7 +107,7 @@ INSERT INTO numbers (number) VALUES (1), (2), (3), (4), (5);
 
     Path("my-database.db").unlink()
 
-
+# Closing db connection to solve locked error"
 @pytest.mark.xfail(reason="We're getting a database is locked error")
 def test_runner_sqlite(tmp_sqlite):
     text = """
@@ -127,6 +127,7 @@ import sqlite3
 conn = sqlite3.connect("my-database.db")
 results = conn.execute("SELECT * FROM numbers")
 print(results)
+conn.close()
 ```
 
 
