@@ -15,17 +15,21 @@ class CodeRunner:
             self.conn = duckdb.connect()
 
     def run(self):
+        # Adding try-except block to make errors legible
         for code in iterate_code_chunks(self.text):
             language = code["language"]
             print(f"Running: {code}")
+            try:
+                if language == "python":
+                    execution = self.shell.run_cell(code["code"])
+                    execution.raise_error()
 
-            if language == "python":
-                execution = self.shell.run_cell(code["code"])
-                execution.raise_error()
+                    result = execution.result
 
-                result = execution.result
-
-                print(f"Output: {result}")
-            elif language == "sql":
-                result = self.conn.execute(code["code"]).fetchall()
-                print(f"Output: {result}")
+                    print(f"Output: {result}")
+                elif language == "sql":
+                    result = self.conn.execute(code["code"]).fetchall()
+                    print(f"Output: {result}")
+            except Exception as e:
+                print(f"Error! in chunk {code}: {e}")
+                print(f"Tip: Investigate --> `{code['code']}`")
