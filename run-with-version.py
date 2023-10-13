@@ -26,13 +26,17 @@ def runMdWithPythonVersion(mdFilePath,pythonVersion):
     with open(mdFilePath, "r") as file:
         markdownChunks = file.read()
 
-    chunks = re.findall(r'```python(.*?)```', markdownChunks, re.DOTALL)
+    chunks = re.findall(r'```(python|sql|bash)(.*?)```', markdownChunks, re.DOTALL)
     
     # Dictionary to track variables and their values across chunks
     variables = dict()
 
-    for chunk in chunks:
+    for language, chunk in chunks:
         try:
+            # Adding support for bash scripts
+            if language == "bash":
+                result = subprocess.run(chunk, shell=True, text=True, check=True, stdout=subprocess.PIPE)
+
             # Execute each chunk in a Docker container with the specified Python version
             dockerCMD = f"docker run --rm -i python:{pythonVersion}"
 
@@ -51,6 +55,9 @@ def runMdWithPythonVersion(mdFilePath,pythonVersion):
 
         except subprocess.CalledProcessError as e:
             print(f"Error!: Docker command failed with exit code {e.returncode}") 
+        
+        except Exception as e:
+            print(f"Error!: Execution of {language} code failed: {e}")
 
 if __name__ == "__main__":
     # Retrieve CLI arguments
